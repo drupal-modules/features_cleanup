@@ -58,10 +58,9 @@ function drush_features_resolve_overrides() {
           features_deletion_override_perform($module_name, NULL, TRUE);
           drush_print(dt('All overrides were successfully cleaned. Please revert this feature.'));
         }
-        catch(Exception $e) {
+        catch (Exception $e) {
           drush_die($e);
         }
-        //drush_backend_invoke('features-revert '. $module_name, array('force' => $force));
       }
     }
     else {
@@ -77,11 +76,11 @@ function drush_features_cleanup() {
     drush_print(dt('The following features will delete content types, panel pages, mini panels, image styles, and vocabularies based on existing ENABLED features. Please enable all desired features before running this command.'));
     if (drush_confirm(dt('Do you really want to continue?'))) {
         try {
-          if(features_deletion_perform()) {
+          if (features_deletion_perform()) {
             drush_print(dt('All extraneous database components successfully cleaned.'));
           }
         }
-        catch(Exception $e) {
+        catch (Exception $e) {
           drush_die($e);
         }
     }

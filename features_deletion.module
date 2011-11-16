@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * Implements hook_menu().
+ */
 function features_deletion_menu() {
   if (module_exists('diff')) {
     $items['admin/structure/features/%feature/resolve_overrides'] = array(
@@ -37,6 +41,10 @@ function features_deletion_menu() {
 return $items;
 }
 
+
+/**
+ * Perform a cleanup of content types, page manager pages (node panels), mini panels, taxonomy vocabs, image styles.
+ */
 function features_deletion_perform() {
   $features = features_get_features();
   $content_types = array();
@@ -67,7 +75,7 @@ function features_deletion_perform() {
   $all_content_types_in_db = node_type_get_types();
   foreach ($all_content_types_in_db as $id => $obj) {
     if (array_search($id, $content_types) === FALSE) {
-//      node_type_delete($id);
+      node_type_delete($id);
     }
   }
 
@@ -78,13 +86,13 @@ function features_deletion_perform() {
 
   page_manager_get_pages($tasks, $pages);
   $dpages = array();
-  foreach($pages['rows'] as $i => $v) {
+  foreach ($pages['rows'] as $i => $v) {
     if ($v['data']['type']['data'] == 'Custom') {
       $dpages[] = $i;
     }
   }
 
-  foreach($fpages as $i => $v) {
+  foreach ($fpages as $i => $v) {
     $fpages[$i] = 'page-' . $v;
   }
   foreach ($dpages as $id => $page) {
@@ -121,9 +129,17 @@ function features_deletion_perform() {
     }
   }
 
-  return true;
+  return TRUE;
 }
 
+/**
+ * Returns a diff object for a feature in the code. Pass in a component to run a diff only on that component.
+ * 
+ * @param $feature
+ *   A loaded feature object to display differences for.
+ * @param $component
+ *   Optional: specific component to display differences for. If excluded, all components are used.
+ */
 function features_deletion_get_diff($feature, $component = NULL) {
   $overrides = features_detect_overrides($feature);
 
@@ -186,7 +202,7 @@ function features_deletion_diff($feature, $component = NULL) {
       array('data' => t('Overrides'), 'colspan' => 2),
     );
     $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('class' => array('diff', 'features-diff'))));
-    $output .= l('Resolve All Overrides', 'admin/structure/features/'.$feature->name.'/resolve_overrides/perform');
+    $output .= l('Resolve All Overrides', 'admin/structure/features/' . $feature->name . '/resolve_overrides/perform');
   }
   else {
     $output = "<div class='features-empty'>" . t('No changes have been made to this feature.') . "</div>";
@@ -195,7 +211,18 @@ function features_deletion_diff($feature, $component = NULL) {
   return $output;
 }
 
-function features_deletion_override_perform ($feature, $component = NULL, $drush = FALSE) {
+/**
+ * Perform override resolution on a particular feature, component.
+ *
+ * @param $feature
+ *   A loaded feature object to display differences for.
+ * @param $component
+ *   Optional: specific component to display differences for. If excluded, all components are used.
+ * @param $drush
+ *   Optional: Whether drush is being used or not.
+ *  
+ */
+function features_deletion_override_perform($feature, $component = NULL, $drush = FALSE) {
   $feature_name = $feature->name;
   $all_diffs = features_deletion_get_diff($feature, $component);
 
@@ -214,7 +241,7 @@ function features_deletion_override_perform ($feature, $component = NULL, $drush
 
   // Delete content types
   if (!$drush) {
-    drupal_goto('admin/structure/features/'.$feature_name.'/resolve_overrides');
+    drupal_goto('admin/structure/features/' . $feature_name . '/resolve_overrides');
   }
 }
 
@@ -222,15 +249,15 @@ function _features_deletion_delete_field($content_type, $field) {
 
   $field_info = field_info_field($field);
   $count = 0;
-  $deleted = false;
+  $deleted = FALSE;
   if (isset($field_info['bundles'])) {
     foreach ($field_info['bundles'] as $entity_type => $bundles) {
       foreach ($bundles as $bundle) {
         $count++;
         if ($bundle == $content_type) {
           $instance = field_info_instance($entity_type, $field, $bundle);
-	  field_delete_instance($instance, FALSE);
-          $deleted = true;
+          field_delete_instance($instance, FALSE);
+          $deleted = TRUE;
         }
       }
     }
