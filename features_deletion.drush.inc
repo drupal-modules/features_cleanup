@@ -17,15 +17,15 @@ function features_deletion_drush_command() {
   $items = array();
 
   $items['features-resolve-overrides'] = array(
-    'description' => "List all the available features for your site.",
+    'description' => "Attempts to resolve all overrides by removing fields from the database. Please run features-revert or features-revert-all after this command. Requires 1 argument: feature name. For example drush features-resolve-overrides views_feature will attempt to resolve all field overrides for the feature named views_feature.",
     'drupal dependencies' => array('features', 'features_deletion'),
     'aliases' => array('fro'),
   );
 
   $items['features-cleanup'] = array(
-    'description' => "List all the available features for your site.",
+    'description' => "Cleans out all content types, panel pages, mini panels, vocabularies, and image styles from database based on existing enabled features.",
     'drupal dependencies' => array('features', 'features_deletion'),
-    'aliases' => array('fro'),
+    'aliases' => array('fc'),
   );
 
   return $items;
@@ -37,7 +37,7 @@ function features_deletion_drush_command() {
 function features_deletion_drush_help($section) {
   switch ($section) {
     case 'drush:features-resolve-overrides':
-      return dt("Attempts to resolve all overrides by removing fields from the database. Please run features-revert or features-revert-all after this command.");
+      return dt("Attempts to resolve all overrides by removing fields from the database. Please run features-revert or features-revert-all after this command. Requires 1 argument: feature name. For example drush features-resolve-overrides views_feature will attempt to resolve all field overrides for the feature named views_feature.");
     case 'drush:features-cleanup':
       return dt("Cleans out all content types, panel pages, mini panels, vocabularies, and image styles from database based on existing enabled features.");
   }

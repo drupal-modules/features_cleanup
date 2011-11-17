@@ -15,9 +15,7 @@ function features_deletion_menu() {
       'access arguments' => array(3),
       'type' => MENU_LOCAL_TASK,
     );
-  }
 
-  if (module_exists('diff')) {
     $items['admin/structure/features/%feature/resolve_overrides/perform'] = array(
       'title' => 'Performing Resolution of all Overrides',
       'description' => 'Resolve pesky overrides by deleting default based on current feature.',
@@ -30,15 +28,15 @@ function features_deletion_menu() {
     );
   }
 
-    $items['admin/structure/features/sync-features'] = array(
-      'title' => 'Sync Features',
-      'description' => 'Resolve content type, panels, vocabularies, and image styles by deleting default based on all feature.',
-      'page callback' => 'features_deletion_perform',
-      'access arguments' => array('Administer content'),
-      'type' => MENU_LOCAL_TASK,
-    );
+  $items['admin/structure/features/sync-features'] = array(
+   'title' => 'Sync Features',
+   'description' => 'Resolve content type, panels, vocabularies, and image styles by deleting default based on all feature.',
+   'page callback' => 'features_deletion_perform',
+   'access arguments' => array('Administer content'),
+   'type' => MENU_LOCAL_TASK,
+  );
 
-return $items;
+  return $items;
 }
 
 
