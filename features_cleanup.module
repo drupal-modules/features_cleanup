@@ -102,7 +102,8 @@ function features_cleanup_perform() {
   // Sync Content Types
   $all_content_types_in_db = node_type_get_types();
   foreach ($all_content_types_in_db as $id => $obj) {
-    if (array_search($id, $content_types) === FALSE) {
+    if ((array_search($id, $content_types) === FALSE) && ($obj->custom == TRUE)) {
+      drupal_set_message(t('Features Cleanup deleted content type !ct-name (!ct-id) from the database.', array('!ct-name' => $obj->name, '!ct-id' => $id)));
       node_type_delete($id);
     }
   }
