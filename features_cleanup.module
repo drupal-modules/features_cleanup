@@ -27,16 +27,32 @@ function features_cleanup_menu() {
   );
 
   $items['admin/structure/features/sync-features'] = array(
-   'title' => 'Sync Features',
-   'description' => 'Resolve content type, panels, vocabularies, and image styles by deleting default based on all feature.',
-   'page callback' => 'features_cleanup_perform',
-   'access arguments' => array('Administer content'),
-   'type' => MENU_LOCAL_TASK,
+    'title' => 'Sync Features',
+    'description' => 'Resolve content type, panels, vocabularies, and image styles by deleting default based on all feature.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('features_cleanup_sync_features_form'),
+    'access arguments' => array('Administer content'),
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
 }
 
+function features_cleanup_sync_features_form($form, $form_state) {
+  $form['info'] = array(
+    '#markup' => '<p>' . t('You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within features. Are you sure you wish to continue?</p>')
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Sync all features'),
+  );
+  return $form;
+}
+
+function features_cleanup_sync_features_form_submit($form, &$form_state) {
+  features_cleanup_perform();
+  drupal_goto('admin/structure/features');
+}
 
 /**
  * Perform a cleanup of content types, page manager pages (node panels), mini panels, taxonomy vocabs, image styles.
