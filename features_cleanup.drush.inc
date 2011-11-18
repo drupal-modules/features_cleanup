@@ -52,7 +52,7 @@ function features_cleanup_drush_help($section) {
  */
 function drush_features_cleanup_feature() {
   if ($args = func_get_args()) {
-    drush_print(dt('The following features will override their database component counterparts. Fields and panels that are not in the feature will PERMANENTLY be deleted: !modules', array('!modules' => implode(', ', $args))));
+    drush_print(dt('Fields that are not in the feature - but attached to a content type in the given feature - will PERMANENTLY be deleted: !modules', array('!modules' => implode(', ', $args))));
     if (drush_confirm(dt('Do you really want to continue?'))) {
       foreach ($args as $module_name) {
         module_load_include('inc', 'features', 'features.export');
