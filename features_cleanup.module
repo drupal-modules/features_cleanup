@@ -40,7 +40,9 @@ function features_cleanup_menu() {
 
 function features_cleanup_sync_features_form($form, $form_state) {
   $form['info'] = array(
-    '#markup' => '<p>' . t('You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within features. Are you sure you wish to continue?</p>')
+    '#markup' => 
+      '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within features.') . '</p>'.
+      '<p>' . t('Are you sure you wish to continue?') . '</p>',
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -51,6 +53,7 @@ function features_cleanup_sync_features_form($form, $form_state) {
 
 function features_cleanup_sync_features_form_submit($form, &$form_state) {
   features_cleanup_perform();
+  drupal_set_message(t('All features have now been synced. All content types, panels, vocabularies, and image styles not controlled via features have been deleted.'));
   drupal_goto('admin/structure/features');
 }
 
@@ -65,20 +68,33 @@ function features_cleanup_perform() {
   $vocabs = array();
   foreach ($features as $i => $feature) {
     if ($feature->status) {
-      foreach ($feature->info['features']['node'] as $j => $content_type) {
-        $content_types[] = $content_type;
+      // Delete all fields and then prepare additional deletions.
+      features_cleanup_override_perform($feature);
+
+      if (isset($feature->info['features']['node'])) {
+        foreach ($feature->info['features']['node'] as $j => $content_type) {
+          $content_types[] = $content_type;
+        }
       }
-      foreach ($feature->info['features']['page_manager_pages'] as $j => $page) {
-        $fpages[] = $page;
+      if (isset($feature->info['features']['page_manager_pages'])) {
+        foreach ($feature->info['features']['page_manager_pages'] as $j => $page) {
+          $fpages[] = $page;
+        }
       }
-      foreach ($feature->info['features']['panels_mini'] as $j => $panel) {
-        $mini_panels[] = $panel;
+      if (isset($feature->info['features']['panels_mini'])) {
+        foreach ($feature->info['features']['panels_mini'] as $j => $panel) {
+          $mini_panels[] = $panel;
+        }
       }
-      foreach ($feature->info['features']['taxonomy'] as $j => $vocab) {
-        $vocabs[] = $vocab;
+      if (isset($feature->info['features']['taxonomy'])) {
+        foreach ($feature->info['features']['taxonomy'] as $j => $vocab) {
+          $vocabs[] = $vocab;
+        }
       }
-      foreach ($feature->info['features']['image'] as $j => $style) {
-        $styles[] = $style;
+      if (isset($feature->info['features']['image'])) {
+        foreach ($feature->info['features']['image'] as $j => $style) {
+          $styles[] = $style;
+        }
       }
     }
   }
@@ -140,7 +156,7 @@ function features_cleanup_perform() {
     // Sync Image Styles
     $dstyles = image_styles();
     foreach ($dstyles as $id => $style) {
-      if ($style['isid'] && array_search($id, $styles) === FALSE) {
+      if (isset($style['isid']) && array_search($id, $styles) === FALSE) {
         image_style_delete($style);
       }
     }
@@ -194,8 +210,6 @@ function features_cleanup_diff($feature, $component = NULL) {
   drupal_add_css(drupal_get_path('module', 'features') . '/features.css');
   module_load_include('inc', 'features', 'features.export');
 
-  $overrides = features_detect_overrides($feature);
-
   $output = '';
   module_load_include('inc', 'diff', 'diff.engine');
   $formatter = new DrupalDiffFormatter(); //- temporarily broken
@@ -208,7 +222,6 @@ function features_cleanup_diff($feature, $component = NULL) {
   $all_diffs = features_cleanup_get_diff($feature, $component);
   if ($all_diffs != array()) {
     foreach ($all_diffs as $component => $diff) {
-      
       $rows[] = array(array(array('data' => $component, 'colspan' => 4, 'header' => TRUE)));
       //dpm($formatter->format($diff));
       $rows = array_merge($rows, $formatter->format($diff));
