@@ -4,29 +4,27 @@
  * Implements hook_menu().
  */
 function features_cleanup_menu() {
-  if (module_exists('diff')) {
-    $items['admin/structure/features/%feature/resolve_overrides'] = array(
-      'title' => 'Resolve Overrides',
-      'description' => 'Resolve pesky overrides by deleting default based on current feature.',
-      'page callback' => 'features_cleanup_diff',
-      'page arguments' => array(3, 5),
-      'load arguments' => array(3, TRUE),
-      'access callback' => 'features_access_override_actions',
-      'access arguments' => array(3),
-      'type' => MENU_LOCAL_TASK,
-    );
+  $items['admin/structure/features/%feature/resolve_overrides'] = array(
+    'title' => 'Resolve Overrides',
+    'description' => 'Resolve pesky overrides by deleting default based on current feature.',
+    'page callback' => 'features_cleanup_diff',
+    'page arguments' => array(3, 5),
+    'load arguments' => array(3, TRUE),
+    'access callback' => 'features_access_override_actions',
+    'access arguments' => array(3),
+    'type' => MENU_LOCAL_TASK,
+  );
 
-    $items['admin/structure/features/%feature/resolve_overrides/perform'] = array(
-      'title' => 'Performing Resolution of all Overrides',
-      'description' => 'Resolve pesky overrides by deleting default based on current feature.',
-      'page callback' => 'features_cleanup_override_perform',
-      'page arguments' => array(3, 5),
-      'load arguments' => array(3, TRUE),
-      'access callback' => 'features_access_override_actions',
-      'access arguments' => array(3),
-      'type' => MENU_LOCAL_TASK,
-    );
-  }
+  $items['admin/structure/features/%feature/resolve_overrides/perform'] = array(
+    'title' => 'Performing Resolution of all Overrides',
+    'description' => 'Resolve pesky overrides by deleting default based on current feature.',
+    'page callback' => 'features_cleanup_override_perform',
+    'page arguments' => array(3, 5),
+    'load arguments' => array(3, TRUE),
+    'access callback' => 'features_access_override_actions',
+    'access arguments' => array(3),
+    'type' => MENU_LOCAL_TASK,
+  );
 
   $items['admin/structure/features/sync-features'] = array(
    'title' => 'Sync Features',
