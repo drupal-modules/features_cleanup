@@ -1,0 +1,6 @@
+name = "Features Deletion Helper Module"
+description = "Provides functionality to automatically delete fields with features."
+core = 7.x
+package = "Features"
+dependencies[] = diff
+version = "7.x-1.x-dev"
