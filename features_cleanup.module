@@ -77,51 +77,56 @@ function features_cleanup_perform() {
     }
   }
 
-  // Sync Panel Pagets
-  module_load_include('inc', 'page_manager', 'page_manager.admin');
-  $tasks = page_manager_get_tasks_by_type('page');
-  $pages = array('operations' => array(), 'tasks' => array());
-
-  page_manager_get_pages($tasks, $pages);
-  $dpages = array();
-  foreach ($pages['rows'] as $i => $v) {
-    if ($v['data']['type']['data'] == 'Custom') {
-      $dpages[] = $i;
+  // Sync Panel Pages
+  if (module_exists('page_manager')) {
+    module_load_include('inc', 'page_manager', 'page_manager.admin');
+    $tasks = page_manager_get_tasks_by_type('page');
+    $pages = array('operations' => array(), 'tasks' => array());
+    page_manager_get_pages($tasks, $pages);
+    $dpages = array();
+    foreach ($pages['rows'] as $i => $v) {
+      if ($v['data']['type']['data'] == 'Custom') {
+        $dpages[] = $i;
+      }
     }
   }
-
   foreach ($fpages as $i => $v) {
     $fpages[$i] = 'page-' . $v;
   }
   foreach ($dpages as $id => $page) {
     if (array_search($page, $fpages) === FALSE) {
-        $page = str_replace('page-', '', $page);
-        $p = page_manager_page_load($page);
-        page_manager_page_delete($p);
+      $page = str_replace('page-', '', $page);
+      $p = page_manager_page_load($page);
+      page_manager_page_delete($p);
     }
   }
 
-  // Sync Mini panels
-  $dpanels = panels_mini_load_all();
-  foreach ($dpanels as $id => $panel) {
-    if (array_search($id, $mini_panels) === FALSE) {
+  if (module_exists('panels_mini')) {
+    // Sync Mini panels
+    $dpanels = panels_mini_load_all();
+    foreach ($dpanels as $id => $panel) {
+      if (array_search($id, $mini_panels) === FALSE) {
         $p = panels_mini_load($id);
         panels_mini_delete($p);
+      }
     }
   }
 
-  // Sync Vocabs
-  $dvocabs = taxonomy_vocabulary_get_names();
-  foreach ($dvocabs as $id => $vocab) {
-    if (array_search($id, $vocabs) === FALSE) {
-      taxonomy_vocabulary_delete($vocab->vid);
+  if (module_exists('taxonomy')) {
+    // Sync Vocabs
+    $dvocabs = taxonomy_vocabulary_get_names();
+    foreach ($dvocabs as $id => $vocab) {
+      if (array_search($id, $vocabs) === FALSE) {
+        taxonomy_vocabulary_delete($vocab->vid);
+      }
     }
   }
-  // Sync Image Styles
-  $dstyles = image_styles();
-  foreach ($dstyles as $id => $style) {
-    if ($style['isid']) {
-      if (array_search($id, $styles) === FALSE) {
+
+  if (module_exists('image')) {
+    // Sync Image Styles
+    $dstyles = image_styles();
+    foreach ($dstyles as $id => $style) {
+      if ($style['isid'] && array_search($id, $styles) === FALSE) {
         image_style_delete($style);
       }
     }
@@ -147,9 +152,8 @@ function features_cleanup_get_diff($feature, $component = NULL) {
     if (isset($component) && isset($overrides[$component])) {
       $overrides = array($component => $overrides[$component]);
     }
+
     module_load_include('inc', 'diff', 'diff.engine');
-   
-    $rows = array();
     foreach ($overrides as $component => $items) {
       $diff[$component] = new Diff(explode("\n", $items['default']), explode("\n", $items['normal']));
     }
