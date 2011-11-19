@@ -62,6 +62,7 @@ function features_cleanup_sync_features_form_submit($form, &$form_state) {
  */
 function features_cleanup_perform() {
   $features = features_get_features();
+  $msgs = array();
   $content_types = array();
   $mini_panels = array();
   $fpages = array();
@@ -103,7 +104,7 @@ function features_cleanup_perform() {
   $all_content_types_in_db = node_type_get_types();
   foreach ($all_content_types_in_db as $id => $obj) {
     if ((array_search($id, $content_types) === FALSE) && ($obj->custom == TRUE)) {
-      drupal_set_message(t('Features Cleanup deleted content type !ct-name (id: !ct-id) from the database.', array('!ct-name' => $obj->name, '!ct-id' => $id)));
+      features_cleanup_add_msg(t('Features Cleanup deleted content type !ct-name (id: !ct-id) from the database.', array('!ct-name' => $obj->name, '!ct-id' => $id)));
       node_type_delete($id);
     }
   }
@@ -127,7 +128,7 @@ function features_cleanup_perform() {
       if (array_search($page, $fpages) === FALSE) {
         $page = str_replace('page-', '', $page);
         $p = page_manager_page_load($page);
-        drupal_set_message(t('Features Cleanup deleted page !p-name (id: !p-id) at !p-path from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid, '!p-path' => $p->path)));
+        features_cleanup_add_msg(t('Features Cleanup deleted page !p-name (id: !p-id) at !p-path from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid, '!p-path' => $p->path)));
         page_manager_page_delete($p);
       }
     }
@@ -139,7 +140,7 @@ function features_cleanup_perform() {
     foreach ($dpanels as $id => $panel) {
       if (array_search($id, $mini_panels) === FALSE) {
         $p = panels_mini_load($id);
-        drupal_set_message(t('Features Cleanup deleted mini panel !p-name (id: !p-id) from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid)));
+        features_cleanup_add_msg(t('Features Cleanup deleted mini panel !p-name (id: !p-id) from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid)));
         panels_mini_delete($p);
       }
     }
@@ -150,7 +151,7 @@ function features_cleanup_perform() {
     $dvocabs = taxonomy_vocabulary_get_names();
     foreach ($dvocabs as $id => $vocab) {
       if (array_search($id, $vocabs) === FALSE) {
-        drupal_set_message(t('Features Cleanup deleted taxonomy !t-name (id: !t-id) from the database.', array('!t-name' => $vocab->name, '!t-id' => $vocab->vid)));
+        features_cleanup_add_msg(t('Features Cleanup deleted taxonomy !t-name (id: !t-id) from the database.', array('!t-name' => $vocab->name, '!t-id' => $vocab->vid)));
         taxonomy_vocabulary_delete($vocab->vid);
       }
     }
@@ -161,10 +162,15 @@ function features_cleanup_perform() {
     $dstyles = image_styles();
     foreach ($dstyles as $id => $style) {
       if (isset($style['isid']) && array_search($id, $styles) === FALSE) {
-        drupal_set_message(t('Features Cleanup deleted image style !is-name (id: !is-id) from the database.', array('!is-name' => $style['name'], '!is-id' => $style['isid'])));
+        features_cleanup_add_msg(t('Features Cleanup deleted image style !is-name (id: !is-id) from the database.', array('!is-name' => $style['name'], '!is-id' => $style['isid'])));
         image_style_delete($style);
       }
     }
+  }
+
+  $msgs = features_cleanup_add_msg();
+  if (!empty($msgs)) {
+    watchdog('Features Cleanup', theme('item_list', array('title' => t('Features Cleanup was run and the following actions were performed:'), 'items' => $msgs)));
   }
 
   return TRUE;
@@ -288,7 +294,7 @@ function _features_cleanup_delete_field($content_type, $field) {
       foreach ($bundles as $bundle) {
         $count++;
         if ($bundle == $content_type) {
-          drupal_set_message(t('Features Cleanup deleted field !f-name (id: !f-id) from the "!content-type" content type.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
+          features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) from the "!content-type" content type.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
           $instance = field_info_instance($entity_type, $field, $bundle);
           field_delete_instance($instance, FALSE);
           $deleted = TRUE;
@@ -296,8 +302,17 @@ function _features_cleanup_delete_field($content_type, $field) {
       }
     }
     if ($count == 1 && $deleted) {
-      drupal_set_message(t('Features Cleanup deleted field !f-name (id: !f-id) entirely as the reference in the "!content-type" content type was the last remaining reference.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
+      features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) entirely as the reference in the "!content-type" content type was the last remaining reference.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
       field_delete_field($field);
     }
   }
+}
+
+function features_cleanup_add_msg($msg = NULL) {
+  static $msgs = array();
+  if ($msg) {
+    $msgs[] = $msg;
+    drupal_set_message($msg);
+  }
+  return $msgs;
 }
