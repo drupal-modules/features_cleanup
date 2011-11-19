@@ -59,7 +59,8 @@ function drush_features_cleanup_feature() {
         $feature = features_get_features($module_name);
         try {
           features_cleanup_override_perform($feature);
-          drush_print(dt('All overrides were successfully cleaned. Please revert this feature.'));
+          drush_backend_invoke('features-revert '. $module_name);
+          drush_print(dt('The !module_name feature was successfully cleaned and reverted.', array('!module_name' => $module_name)));
         }
         catch (Exception $e) {
           drush_die($e);
