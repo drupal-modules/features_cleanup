@@ -1,6 +1,7 @@
 name = "Features Cleanup"
-description = "Provides functionality to automatically delete fields no longer present in features."
+description = "Provides functionality to automatically delete fields, image styles, node panels, mini panels, and vocabularies no longer present in features."
 core = 7.x
 package = "Features"
 dependencies[] = diff
+dependencies[] = features
 version = "7.x-1.x-dev"

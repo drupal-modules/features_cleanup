@@ -6,7 +6,7 @@
 function features_cleanup_menu() {
   $items['admin/structure/features/%feature/resolve_overrides'] = array(
     'title' => 'Resolve Overrides',
-    'description' => 'Resolve pesky overrides by deleting default based on current feature.',
+    'description' => 'Resolve pesky overrides by deleting default components based on current feature.',
     'page callback' => 'features_cleanup_diff',
     'page arguments' => array(3, 5),
     'load arguments' => array(3, TRUE),
@@ -17,9 +17,9 @@ function features_cleanup_menu() {
 
   $items['admin/structure/features/%feature/resolve_overrides/perform'] = array(
     'title' => 'Performing Resolution of all Overrides',
-    'description' => 'Resolve pesky overrides by deleting default based on current feature.',
+    'description' => 'Resolve pesky overrides by deleting default components based on current feature.',
     'page callback' => 'features_cleanup_override_perform',
-    'page arguments' => array(3, 5),
+    'page arguments' => array(3, 5, TRUE),
     'load arguments' => array(3, TRUE),
     'access callback' => 'features_access_override_actions',
     'access arguments' => array(3),
@@ -27,7 +27,7 @@ function features_cleanup_menu() {
   );
 
   $items['admin/structure/features/sync-features'] = array(
-    'title' => 'Sync Features',
+    'title' => 'Cleanup Features',
     'description' => 'Resolve content type, panels, vocabularies, and image styles by deleting default based on all feature.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('features_cleanup_sync_features_form'),
@@ -41,7 +41,7 @@ function features_cleanup_menu() {
 function features_cleanup_sync_features_form($form, $form_state) {
   $form['info'] = array(
     '#markup' => 
-      '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within features.') . '</p>'.
+      '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within features.') . '</p>' .
       '<p>' . t('Are you sure you wish to continue?') . '</p>',
   );
   $form['submit'] = array(
@@ -104,8 +104,8 @@ function features_cleanup_perform() {
   $all_content_types_in_db = node_type_get_types();
   foreach ($all_content_types_in_db as $id => $obj) {
     if ((array_search($id, $content_types) === FALSE) && ($obj->custom == TRUE)) {
-      features_cleanup_add_msg(t('Features Cleanup deleted content type !ct-name (id: !ct-id) from the database.', array('!ct-name' => $obj->name, '!ct-id' => $id)));
       node_type_delete($id);
+      features_cleanup_add_msg(t('Features Cleanup deleted content type !ct-name (id: !ct-id) from the database.', array('!ct-name' => $obj->name, '!ct-id' => $id)));
     }
   }
 
@@ -128,8 +128,8 @@ function features_cleanup_perform() {
       if (array_search($page, $fpages) === FALSE) {
         $page = str_replace('page-', '', $page);
         $p = page_manager_page_load($page);
-        features_cleanup_add_msg(t('Features Cleanup deleted page !p-name (id: !p-id) at !p-path from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid, '!p-path' => $p->path)));
         page_manager_page_delete($p);
+        features_cleanup_add_msg(t('Features Cleanup deleted page !p-name (id: !p-id) at !p-path from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid, '!p-path' => $p->path)));
       }
     }
   }
@@ -140,8 +140,8 @@ function features_cleanup_perform() {
     foreach ($dpanels as $id => $panel) {
       if (array_search($id, $mini_panels) === FALSE) {
         $p = panels_mini_load($id);
-        features_cleanup_add_msg(t('Features Cleanup deleted mini panel !p-name (id: !p-id) from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid)));
         panels_mini_delete($p);
+        features_cleanup_add_msg(t('Features Cleanup deleted mini panel !p-name (id: !p-id) from the database.', array('!p-name' => $p->admin_title, '!p-id' => $p->pid)));
       }
     }
   }
@@ -151,8 +151,8 @@ function features_cleanup_perform() {
     $dvocabs = taxonomy_vocabulary_get_names();
     foreach ($dvocabs as $id => $vocab) {
       if (array_search($id, $vocabs) === FALSE) {
-        features_cleanup_add_msg(t('Features Cleanup deleted taxonomy !t-name (id: !t-id) from the database.', array('!t-name' => $vocab->name, '!t-id' => $vocab->vid)));
         taxonomy_vocabulary_delete($vocab->vid);
+        features_cleanup_add_msg(t('Features Cleanup deleted taxonomy !t-name (id: !t-id) from the database.', array('!t-name' => $vocab->name, '!t-id' => $vocab->vid)));
       }
     }
   }
@@ -170,7 +170,7 @@ function features_cleanup_perform() {
 
   $msgs = features_cleanup_add_msg();
   if (!empty($msgs)) {
-    watchdog('Features Cleanup', theme('item_list', array('title' => t('Features Cleanup was run and the following actions were performed:'), 'items' => $msgs)));
+    watchdog('Features Cleanup', theme('item_list', array('title' => t('The following Features Cleanup actions were performed:'), 'items' => $msgs)));
   }
 
   return TRUE;
@@ -278,8 +278,8 @@ function features_cleanup_override_perform($feature, $component = NULL, $redirec
       }
     }
   }
-
-  // Delete content types
+  // Revert after override resolution is performed
+  features_revert(array($feature_name => array(0 => field)));
   if ($redirect) {
     drupal_goto('admin/structure/features/' . $feature_name . '/resolve_overrides');
   }
@@ -294,16 +294,16 @@ function _features_cleanup_delete_field($content_type, $field) {
       foreach ($bundles as $bundle) {
         $count++;
         if ($bundle == $content_type) {
-          features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) from the "!content-type" content type.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
           $instance = field_info_instance($entity_type, $field, $bundle);
           field_delete_instance($instance, FALSE);
+          features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) from the "!content-type" content type.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
           $deleted = TRUE;
         }
       }
     }
     if ($count == 1 && $deleted) {
-      features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) entirely as the reference in the "!content-type" content type was the last remaining reference.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
       field_delete_field($field);
+      features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) entirely as the reference in the "!content-type" content type was the last remaining reference.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
     }
   }
 }
@@ -312,7 +312,7 @@ function features_cleanup_add_msg($msg = NULL) {
   static $msgs = array();
   if ($msg) {
     $msgs[] = $msg;
-    drupal_set_message($msg);
+    drupal_set_message(filter_xss($msg));
   }
   return $msgs;
 }

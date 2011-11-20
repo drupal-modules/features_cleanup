@@ -16,7 +16,7 @@ function features_cleanup_drush_command() {
   $items = array();
 
   $items['features-cleanup-feature'] = array(
-    'description' => "Attempts to resolve all overrides on a single feature module. Please run features-revert or features-revert-all after this command.",
+    'description' => "Attempts to resolve all overrides on a single feature module.",
     'arguments' => array(
       'feature' => 'The a space-delimited list of features.',
     ),
@@ -39,7 +39,7 @@ function features_cleanup_drush_command() {
 function features_cleanup_drush_help($section) {
   switch ($section) {
     case 'drush:features-cleanup-feature':
-      return dt("Attempts to resolve all overrides by removing fields from the database. Please run features-revert or features-revert-all after this command. Requires 1 argument: feature name. For example drush features-resolve-overrides views_feature will attempt to resolve all field overrides for the feature named views_feature.");
+      return dt("Attempts to resolve all overrides by removing fields from the database. Requires 1 argument: feature name. For example drush features-resolve-overrides views_feature will attempt to resolve all field overrides for the feature named views_feature.");
     case 'drush:features-cleanup-all':
       return dt("Cleans out all content types, panel pages, mini panels, vocabularies, and image styles from database based on existing enabled features.");
   }
@@ -59,7 +59,7 @@ function drush_features_cleanup_feature() {
         $feature = features_get_features($module_name);
         try {
           features_cleanup_override_perform($feature);
-          drush_backend_invoke('features-revert '. $module_name);
+          drush_backend_invoke('features-revert ' . $module_name);
           drush_print(dt('The !module_name feature was successfully cleaned and reverted.', array('!module_name' => $module_name)));
         }
         catch (Exception $e) {
