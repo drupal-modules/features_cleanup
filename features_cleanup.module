@@ -41,12 +41,15 @@ function features_cleanup_menu() {
 function features_cleanup_sync_features_form($form, $form_state) {
   $form['info'] = array(
     '#markup' => 
-      '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within features.') . '</p>' .
+      '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within any ACTIVE feature. Please activate all desired features before running this operation. Additionally, please backup your code and database.') . '</p>' .
       '<p>' . t('Are you sure you wish to continue?') . '</p>',
   );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Sync all features'),
+  );
+  $form['cancel'] = array(
+
   );
   return $form;
 }
@@ -279,9 +282,10 @@ function features_cleanup_override_perform($feature, $component = NULL, $redirec
     }
   }
   // Revert after override resolution is performed
-  features_revert(array($feature_name => array(0 => field)));
+  features_revert(array($feature_name => array(0 => 'field')));
+  features_cleanup_add_msg(t('Features Cleanup has resolved all field overrides and reverted to this feature.'));
   if ($redirect) {
-    drupal_goto('admin/structure/features/' . $feature_name . '/resolve_overrides');
+    drupal_goto('admin/structure/features/' . $feature_name . '');
   }
 }
 
