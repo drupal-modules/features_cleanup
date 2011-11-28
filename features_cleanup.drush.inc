@@ -43,8 +43,6 @@ function features_cleanup_drush_help($section) {
     case 'drush:features-cleanup-all':
       return dt("Cleans out all content types, panel pages, mini panels, vocabularies, and image styles from database based on existing enabled features.");
   }
-
-
 }
 
 /**
@@ -77,7 +75,7 @@ function drush_features_cleanup_feature() {
 }
 
 function drush_features_cleanup_all() {
-  drush_print(dt('The following features will delete content types, panel pages, mini panels, image styles, and vocabularies based on existing ENABLED features. Please enable all desired features before running this command.'));
+  drush_print(dt('Running this command will delete content types, panel pages, mini panels, image styles, and vocabularies based on existing ENABLED features. Please enable all desired features before running this command.'));
   if (drush_confirm(dt('Do you really want to continue?'))) {
     try {
       if (features_cleanup_perform()) {

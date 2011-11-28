@@ -70,6 +70,7 @@ function features_cleanup_perform() {
   $mini_panels = array();
   $fpages = array();
   $vocabs = array();
+  $menus = array();
   foreach ($features as $i => $feature) {
     if ($feature->status) {
       // Delete all fields and then prepare additional deletions.
@@ -100,9 +101,13 @@ function features_cleanup_perform() {
           $styles[] = $style;
         }
       }
+      if (isset($feature->info['features']['menu_custom'])) {
+        foreach ($feature->info['features']['menu_custom'] as $j => $menu) {
+          $menus[] = $menu;
+        }
+      }
     }
   }
-
   // Sync Content Types
   $all_content_types_in_db = node_type_get_types();
   foreach ($all_content_types_in_db as $id => $obj) {
@@ -167,6 +172,18 @@ function features_cleanup_perform() {
       if (isset($style['isid']) && array_search($id, $styles) === FALSE) {
         features_cleanup_add_msg(t('Features Cleanup deleted image style !is-name (id: !is-id) from the database.', array('!is-name' => $style['name'], '!is-id' => $style['isid'])));
         image_style_delete($style);
+      }
+    }
+  }
+
+  if (module_exists('menu')) {
+    // Sync Custom Menus
+    $dmenus = menu_get_menus();
+    foreach ($dmenus as $id => $menu) {
+      if (array_search($id, $menus) === FALSE) {
+        $menu_obj = menu_load($id);
+        menu_delete($menu_obj);
+        features_cleanup_add_msg(t('Features Cleanup deleted custom menu !is-name (id: !is-id) from the database.', array('!is-name' => $menu, '!is-id' => $id)));
       }
     }
   }
