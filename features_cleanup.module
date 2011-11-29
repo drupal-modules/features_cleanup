@@ -40,7 +40,7 @@ function features_cleanup_menu() {
 
 function features_cleanup_sync_features_form($form, $form_state) {
   $form['info'] = array(
-    '#markup' => 
+    '#markup' =>
       '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within any ACTIVE feature. Please activate all desired features before running this operation. Additionally, please backup your code and database.') . '</p>' .
       '<p>' . t('Are you sure you wish to continue?') . '</p>',
   );
@@ -198,7 +198,7 @@ function features_cleanup_perform() {
 
 /**
  * Returns a diff object for a feature in the code. Pass in a component to run a diff only on that component.
- * 
+ *
  * @param $feature
  *   A loaded feature object to display differences for.
  * @param $component
@@ -248,7 +248,7 @@ function features_cleanup_diff($feature, $component = NULL) {
   $formatter->leading_context_lines = 2;
   $formatter->trailing_context_lines = 2;
   //$formatter->show_header = $show_header
-   
+
   $rows = array();
   $all_diffs = features_cleanup_get_diff($feature, $component);
   if ($all_diffs != array()) {
@@ -280,7 +280,7 @@ function features_cleanup_diff($feature, $component = NULL) {
  *   Optional: specific component to display differences for. If excluded, all components are used.
  * @param $drush
  *   Optional: Whether drush is being used or not.
- *  
+ *
  */
 function features_cleanup_override_perform($feature, $component = NULL, $redirect = FALSE) {
   $feature_name = $feature->name;

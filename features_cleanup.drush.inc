@@ -6,8 +6,9 @@
 
 /**
  * Implements hook_drush_command().
- * 
- * @See drush_parse_command() for a list of recognized keys.
+ *
+ * @See drush_parse_command()
+ * for a list of recognized keys.
  *
  * @return
  *   An associative array describing your command(s).
