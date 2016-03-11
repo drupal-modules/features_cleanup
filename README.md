@@ -55,16 +55,20 @@ Drush usage
 -----------
 Features Cleanup provides several useful drush commands:
 
-- `drush features-cleanup`
+- `drush fcf`/`drush features-cleanup-all`
 
-  Run the cleanup task (Task #2) above. This will run features-revert-all afterwards.
+  Cleans out all content types, panel pages, mini panels, vocabularies, and image styles
+  from database based on existing enabled features.
 
-- `drush features-resolve-override [feature name] [component list]`
+  Note: This will run features-revert-all afterwards.
 
-  Resolves overrides for features modules that have lingering override issues.
+- `drush fcf`/`drush features-cleanup-feature [feature name] [component list]`
+
+  Attempts to resolves all overrides on a single feature module
+  that have lingering override issues.  then run features-revert afterwards.
   You may specify a component list (for example, the content type).
 
-  NOTE: This drush command will run features-revert on the given feature.
+  Note: This drush command will run features-revert on the given feature.
 
 Compatibility
 -------------

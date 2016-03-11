@@ -40,7 +40,7 @@ function features_cleanup_drush_command() {
 function features_cleanup_drush_help($section) {
   switch ($section) {
     case 'drush:features-cleanup-feature':
-      return dt("Attempts to resolve all overrides by removing fields from the database. Requires 1 argument: feature name. For example drush features-resolve-overrides views_feature will attempt to resolve all field overrides for the feature named views_feature.");
+      return dt("Attempts to resolve all overrides by removing fields from the database. Requires 1 argument: feature name. For example drush features-cleanup-feature views_feature will attempt to resolve all field overrides for the feature named views_feature.");
     case 'drush:features-cleanup-all':
       return dt("Cleans out all content types, panel pages, mini panels, vocabularies, and image styles from database based on existing enabled features.");
   }
