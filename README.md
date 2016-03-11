@@ -1,9 +1,9 @@
 Features Cleanup
 ----------------
-Features Cleanup is a module that is to be used as an addendum to Features
-(http://drupal.org/project/features). Features does a good job of capturing
-and reverting existing components (fields, panels, etc), it does not do a good
-job of deleting existing database components that are not defined in a feature.
+Features Cleanup is a module that is to be used as an addendum to [Features][1].
+does a good job of capturing and reverting existing components
+(fields, panels, etc), it does not do a good job of deleting existing database
+components that are not defined in a feature.
 
 Features Cleanup is bridges this gap. Being a potentially dangerous module
 (Features Cleanup can irrevertibly delete database components), Features Cleanup
@@ -18,7 +18,7 @@ Installation
 Features Cleanup can be installed like any other Drupal module -- place it in the
 modules directory for your site and enable it on the `admin/build/modules` page.
 To take full advantage of some of the workflow benefits provided by Features Cleanup,
-you should install [Drush][1].
+you should install [Drush][2].
 
 Features and the Diff module are required.
 
@@ -66,7 +66,6 @@ Features Cleanup provides several useful drush commands:
 
   NOTE: This drush command will run features-revert on the given feature.
 
-
 Compatibility
 -------------
 Features Cleanup provides integration for the following exportables:
@@ -87,6 +86,12 @@ Maintainers
 
 Sponsored by: Achieve Internet (http://www.achieveinternet.com)
 
+Homepage
+--------
 
-[1]: http://drupal.org/project/drush
-[2]: (http://drupal.org/taxonomy/term/11478)
+- https://www.drupal.org/sandbox/PaulKimConsulting/1342954
+- https://github.com/drupal-modules/features_cleanup
+
+
+[1]: http://drupal.org/project/features
+[2]: http://drupal.org/project/drush
