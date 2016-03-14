@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- *   Features module drush integration.
+ * Features module drush integration.
  */
 
 /**
@@ -41,6 +41,7 @@ function features_cleanup_drush_help($section) {
   switch ($section) {
     case 'drush:features-cleanup-feature':
       return dt("Attempts to resolve all overrides by removing fields from the database. Requires 1 argument: feature name. For example drush features-cleanup-feature views_feature will attempt to resolve all field overrides for the feature named views_feature.");
+
     case 'drush:features-cleanup-all':
       return dt("Cleans out all content types, panel pages, mini panels, vocabularies, and image styles from database based on existing enabled features.");
   }
@@ -75,6 +76,9 @@ function drush_features_cleanup_feature() {
   }
 }
 
+/**
+ *
+ */
 function drush_features_cleanup_all() {
   drush_print(dt('Running this command will delete content types, panel pages, mini panels, image styles, and vocabularies based on existing ENABLED features. Please enable all desired features before running this command.'));
   if (drush_confirm(dt('Do you really want to continue?'))) {

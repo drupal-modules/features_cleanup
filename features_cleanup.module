@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Implements hook_menu().
  */
 function features_cleanup_menu() {
@@ -38,22 +42,26 @@ function features_cleanup_menu() {
   return $items;
 }
 
+/**
+ *
+ */
 function features_cleanup_sync_features_form($form, $form_state) {
   $form['info'] = array(
     '#markup' =>
-      '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within any ACTIVE feature. Please activate all desired features before running this operation. Additionally, please backup your code and database.') . '</p>' .
-      '<p>' . t('Are you sure you wish to continue?') . '</p>',
+    '<p>' . t('WARNING: You are about to sync all the features on your site. Doing this will delete any content types, panels, vocabularies, and image styles not contained within any ACTIVE feature. Please activate all desired features before running this operation. Additionally, please backup your code and database.') . '</p>' .
+    '<p>' . t('Are you sure you wish to continue?') . '</p>',
   );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Sync all features'),
   );
-  $form['cancel'] = array(
-
-  );
+  $form['cancel'] = array();
   return $form;
 }
 
+/**
+ *
+ */
 function features_cleanup_sync_features_form_submit($form, &$form_state) {
   features_cleanup_perform();
   drupal_set_message(t('All features have now been synced. All content types, panels, vocabularies, and image styles not controlled via features have been deleted.'));
@@ -108,7 +116,7 @@ function features_cleanup_perform() {
       }
     }
   }
-  // Sync Content Types
+  // Sync Content Types.
   $all_content_types_in_db = node_type_get_types();
   foreach ($all_content_types_in_db as $id => $obj) {
     if ((array_search($id, $content_types) === FALSE) && ($obj->custom == TRUE)) {
@@ -117,7 +125,7 @@ function features_cleanup_perform() {
     }
   }
 
-  // Sync Panel Pages
+  // Sync Panel Pages.
   if (module_exists('page_manager')) {
     module_load_include('inc', 'page_manager', 'page_manager.admin');
     $tasks = page_manager_get_tasks_by_type('page');
@@ -143,7 +151,7 @@ function features_cleanup_perform() {
   }
 
   if (module_exists('panels_mini')) {
-    // Sync Mini panels
+    // Sync Mini panels.
     $dpanels = panels_mini_load_all();
     foreach ($dpanels as $id => $panel) {
       if (array_search($id, $mini_panels) === FALSE) {
@@ -155,7 +163,7 @@ function features_cleanup_perform() {
   }
 
   if (module_exists('taxonomy')) {
-    // Sync Vocabs
+    // Sync Vocabs.
     $dvocabs = taxonomy_vocabulary_get_names();
     foreach ($dvocabs as $id => $vocab) {
       if (array_search($id, $vocabs) === FALSE) {
@@ -166,7 +174,7 @@ function features_cleanup_perform() {
   }
 
   if (module_exists('image')) {
-    // Sync Image Styles
+    // Sync Image Styles.
     $dstyles = image_styles();
     foreach ($dstyles as $id => $style) {
       if (isset($style['isid']) && array_search($id, $styles) === FALSE) {
@@ -177,7 +185,7 @@ function features_cleanup_perform() {
   }
 
   if (module_exists('menu')) {
-    // Sync Custom Menus
+    // Sync Custom Menus.
     $dmenus = menu_get_menus();
     foreach ($dmenus as $id => $menu) {
       if (array_search($id, $menus) === FALSE) {
@@ -243,18 +251,18 @@ function features_cleanup_diff($feature, $component = NULL) {
 
   $output = '';
   module_load_include('inc', 'diff', 'diff.engine');
-  $formatter = new DrupalDiffFormatter(); //- temporarily broken
-  //$formatter = new DiffFormatter();
+  // - temporarily broken.
+  $formatter = new DrupalDiffFormatter();
+  // $formatter = new DiffFormatter();
   $formatter->leading_context_lines = 2;
   $formatter->trailing_context_lines = 2;
-  //$formatter->show_header = $show_header
-
+  // $formatter->show_header = $show_header.
   $rows = array();
   $all_diffs = features_cleanup_get_diff($feature, $component);
   if ($all_diffs != array()) {
     foreach ($all_diffs as $component => $diff) {
       $rows[] = array(array(array('data' => $component, 'colspan' => 4, 'header' => TRUE)));
-      //dpm($formatter->format($diff));
+      // dpm($formatter->format($diff));
       $rows = array_merge($rows, $formatter->format($diff));
     }
     $header = array(
@@ -280,13 +288,12 @@ function features_cleanup_diff($feature, $component = NULL) {
  *   Optional: specific component to display differences for. If excluded, all components are used.
  * @param $drush
  *   Optional: Whether drush is being used or not.
- *
  */
 function features_cleanup_override_perform($feature, $component = NULL, $redirect = FALSE) {
   $feature_name = $feature->name;
   $all_diffs = features_cleanup_get_diff($feature, $component);
 
-  // Delete fields
+  // Delete fields.
   foreach ($all_diffs as $component => $feature) {
     if ($component == 'info') {
       foreach ($feature->edits as $i => $diff_obj) {
@@ -298,7 +305,7 @@ function features_cleanup_override_perform($feature, $component = NULL, $redirec
       }
     }
   }
-  // Revert after override resolution is performed
+  // Revert after override resolution is performed.
   features_revert(array($feature_name => array(0 => 'field')));
   features_cleanup_add_msg(t('Features Cleanup has resolved all field overrides and reverted to this feature.'));
   if ($redirect) {
@@ -306,6 +313,9 @@ function features_cleanup_override_perform($feature, $component = NULL, $redirec
   }
 }
 
+/**
+ *
+ */
 function _features_cleanup_delete_field($content_type, $field) {
   $field_info = field_info_field($field);
   $count = 0;
@@ -329,6 +339,9 @@ function _features_cleanup_delete_field($content_type, $field) {
   }
 }
 
+/**
+ *
+ */
 function features_cleanup_add_msg($msg = NULL) {
   static $msgs = array();
   if ($msg) {
