@@ -76,6 +76,7 @@ function features_cleanup_perform() {
   $features = features_get_features();
   $msgs = array();
   $content_types = array();
+  $entityform_type = array();
   $mini_panels = array();
   $fpages = array();
   $vocabs = array();
@@ -88,6 +89,11 @@ function features_cleanup_perform() {
       if (isset($feature->info['features']['node'])) {
         foreach ($feature->info['features']['node'] as $j => $content_type) {
           $content_types[] = $content_type;
+        }
+      }
+      if (isset($feature->info['features']['entityform_type'])) {
+        foreach ($feature->info['features']['entityform_type'] as $j => $entityform_type) {
+          $entityform_type[] = $entityform_type;
         }
       }
       if (isset($feature->info['features']['page_manager_pages'])) {
@@ -125,6 +131,8 @@ function features_cleanup_perform() {
       features_cleanup_add_msg(t('Features Cleanup deleted content type !ct-name (id: !ct-id) from the database.', array('!ct-name' => $obj->name, '!ct-id' => $id)));
     }
   }
+  // Sync Entityform types.
+  // @todo
 
   // Sync Panel Pages.
   if (module_exists('page_manager')) {
