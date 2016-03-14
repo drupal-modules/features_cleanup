@@ -55,6 +55,10 @@ function drush_features_cleanup_feature() {
     drush_print(dt('Fields that are not in the feature - but attached to a content type in the given feature - will PERMANENTLY be deleted: !modules', array('!modules' => implode(', ', $args))));
     if (drush_confirm(dt('Do you really want to continue?'))) {
       foreach ($args as $module_name) {
+        if (!module_exists($module_name)) {
+          drush_log(dt('The !module_name feature does not exist!', array('!module_name' => $module_name)), 'error');
+          continue;
+        }
         module_load_include('inc', 'features', 'features.export');
         $feature = features_get_features($module_name);
         try {
