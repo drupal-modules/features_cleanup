@@ -63,6 +63,7 @@ function drush_features_cleanup_feature() {
           drush_print(dt('The !module_name feature was successfully cleaned and reverted.', array('!module_name' => $module_name)));
         }
         catch (Exception $e) {
+          watchdog_exception('features_cleanup', $e);
           drush_die($e);
         }
       }
@@ -88,6 +89,7 @@ function drush_features_cleanup_all() {
       }
     }
     catch (Exception $e) {
+      watchdog_exception('features_cleanup', $e);
       drush_die($e);
     }
   }

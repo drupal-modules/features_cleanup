@@ -55,7 +55,7 @@ Drush usage
 -----------
 Features Cleanup provides several useful drush commands:
 
-- `drush fcf`/`drush features-cleanup-all`
+- `drush fca`/`drush features-cleanup-all`
 
   Cleans out all content types, panel pages, mini panels, vocabularies, and image styles
   from database based on existing enabled features.
