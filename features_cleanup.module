@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Module file for Features Cleanup.
  */
 
 /**
@@ -43,7 +44,7 @@ function features_cleanup_menu() {
 }
 
 /**
- *
+ * Implements hook_form().
  */
 function features_cleanup_sync_features_form($form, $form_state) {
   $form['info'] = array(
@@ -60,7 +61,7 @@ function features_cleanup_sync_features_form($form, $form_state) {
 }
 
 /**
- *
+ * Callback of form submit.
  */
 function features_cleanup_sync_features_form_submit($form, &$form_state) {
   features_cleanup_perform();
@@ -309,12 +310,17 @@ function features_cleanup_override_perform($feature, $component = NULL, $redirec
   features_revert(array($feature_name => array(0 => 'field')));
   features_cleanup_add_msg(t('Features Cleanup has resolved all field overrides and reverted to this feature.'));
   if ($redirect) {
-    drupal_goto('admin/structure/features/' . $feature_name . '');
+    drupal_goto('admin/structure/features/' . $feature_name);
   }
 }
 
 /**
+ * Delete given field from bundle.
  *
+ * @param string $content_type
+ *   The content type (bundle) for the instance.
+ * @param string $field
+ *   The field name for the instance.
  */
 function _features_cleanup_delete_field($content_type, $field) {
   $field_info = field_info_field($field);
@@ -340,7 +346,7 @@ function _features_cleanup_delete_field($content_type, $field) {
 }
 
 /**
- *
+ * Shows message to the user.
  */
 function features_cleanup_add_msg($msg = NULL) {
   static $msgs = array();
