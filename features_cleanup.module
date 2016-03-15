@@ -302,15 +302,31 @@ function features_cleanup_override_perform($feature, $component = NULL, $redirec
   $feature_name = $feature->name;
   $all_diffs = features_cleanup_get_diff($feature, $component);
 
-  // Delete fields.
+  // Clean up field instances.
   foreach ($all_diffs as $component => $feature) {
     if ($component == 'info') {
       foreach ($feature->edits as $i => $diff_obj) {
-        if ($diff_obj->orig == '' && strpos($diff_obj->closing[0], '[field]')) {
-          $diff_obj->closing[0] = str_replace('"', '', $diff_obj->closing[0]);
-          $arr = explode('-', $diff_obj->closing[0]);
-          _features_cleanup_delete_field($arr[1], $arr[2]);
+        if ($diff_obj->type == 'add' && empty($diff_obj->orig)) {
+          // This is invoked, when the field was removed from the features, but still exists in the database.
+          $component = drupal_parse_info_format(current($diff_obj->closing));
+          if (!empty($component['features']['field_instance'])) {
+            $instance = str_replace('"', '', current($component['features']['field_instance']));
+            list($entity_type, $bundle, $field_name) = explode('-', $instance);
+            _features_cleanup_delete_field($bundle, $field_name);
+          }
         }
+        /*
+        if ($diff_obj->type == 'delete') {
+          // This is invoked, when the field was removed from the database, but it's still in the features.
+          // This scenario is probably not needed.
+          $component = drupal_parse_info_format(current($diff_obj->orig));
+          if (!empty($component['features']['field_instance'])) {
+            $instance = str_replace('"', '', current($component['features']['field_instance']));
+            list($entity_type, $bundle, $field_name) = explode('-', $instance);
+            _features_cleanup_delete_field($bundle, $field_name);
+          }
+        }
+        */
       }
     }
   }
@@ -326,7 +342,7 @@ function features_cleanup_override_perform($feature, $component = NULL, $redirec
  * Delete given field from bundle.
  *
  * @param string $content_type
- *   The content type (bundle) for the instance.
+ *   The content type (bundle) associated with the instance.
  * @param string $field
  *   The field name for the instance.
  */
@@ -334,22 +350,20 @@ function _features_cleanup_delete_field($content_type, $field) {
   $field_info = field_info_field($field);
   $count = 0;
   $deleted = FALSE;
-  if (isset($field_info['bundles'])) {
-    foreach ($field_info['bundles'] as $entity_type => $bundles) {
-      foreach ($bundles as $bundle) {
-        $count++;
-        if ($bundle == $content_type) {
-          $instance = field_info_instance($entity_type, $field, $bundle);
-          field_delete_instance($instance, FALSE);
-          features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) from the "!content-type" content type.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
-          $deleted = TRUE;
-        }
+  foreach ($field_info['bundles'] as $entity_type => $bundles) {
+    foreach ($bundles as $bundle) {
+      $count++;
+      if ($bundle == $content_type) {
+        $instance = field_info_instance($entity_type, $field, $bundle);
+        field_delete_instance($instance, FALSE);
+        features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) from the "!content-type" content type.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
+        $deleted = TRUE;
       }
     }
-    if ($count == 1 && $deleted) {
-      field_delete_field($field);
-      features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) entirely as the reference in the "!content-type" content type was the last remaining reference.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
-    }
+  }
+  if ($count == 1 && $deleted) {
+    field_delete_field($field);
+    features_cleanup_add_msg(t('Features Cleanup deleted field !f-name (id: !f-id) entirely as the reference in the "!content-type" content type was the last remaining reference.', array('!f-name' => $field_info['field_name'], '!f-id' => $field_info['id'], '!content-type' => $bundle)));
   }
 }
 
