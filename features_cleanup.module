@@ -76,7 +76,7 @@ function features_cleanup_perform() {
   $features = features_get_features();
   $msgs = array();
   $content_types = array();
-  $entityform_type = array();
+  $entityform_types = array();
   $mini_panels = array();
   $fpages = array();
   $vocabs = array();
@@ -93,7 +93,7 @@ function features_cleanup_perform() {
       }
       if (isset($feature->info['features']['entityform_type'])) {
         foreach ($feature->info['features']['entityform_type'] as $j => $entityform_type) {
-          $entityform_type[] = $entityform_type;
+          $entityform_types[] = $entityform_type;
         }
       }
       if (isset($feature->info['features']['page_manager_pages'])) {

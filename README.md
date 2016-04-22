@@ -30,7 +30,7 @@ Features Cleanup is separted out into two different tasks.
 ### Task 1: Resolve Overrides
 
 If you are having issues with running features-revert on a feature, and it's still
-showing an overridden state, you can navigate to "Resolve Overrides" in the 
+showing an overridden state, you can navigate to "Resolve Overrides" in the
 Feature's overview screen, and click on "Resolve All Overrides" at the bottom.
 Please backup your database and code before you do this, as it will attempt to
 cleanup all overrides by deleting existing database components (namely, fields)

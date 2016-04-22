@@ -48,7 +48,7 @@ function features_cleanup_drush_help($section) {
 }
 
 /**
- * Get a list of all feature modules.
+ * For specified feature modules and resolve all overrides.
  */
 function drush_features_cleanup_feature() {
   if ($args = func_get_args()) {
@@ -82,7 +82,7 @@ function drush_features_cleanup_feature() {
 }
 
 /**
- *
+ * Get a list of all feature modules and resolve all overrides.
  */
 function drush_features_cleanup_all() {
   drush_print(dt('Running this command will delete content types, panel pages, mini panels, image styles, and vocabularies based on existing ENABLED features. Please enable all desired features before running this command.'));
