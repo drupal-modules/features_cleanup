@@ -7,11 +7,8 @@
 /**
  * Implements hook_drush_command().
  *
- * @See drush_parse_command()
+ * @see drush_parse_command()
  * for a list of recognized keys.
- *
- * @return
- *   An associative array describing your command(s).
  */
 function features_cleanup_drush_command() {
   $items = array();
