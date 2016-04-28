@@ -87,6 +87,7 @@ Maintainers
 - Paul Kim Consulting (Paul Kim)
 - shawn.smiley (Shawn Smiley)
 - csevb10 (Bill O'Connor)
+- kenorb (7.x-1.x)
 
 Sponsored by: Achieve Internet (http://www.achieveinternet.com)
 
